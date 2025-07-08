@@ -24,6 +24,10 @@ public class ArcadeDriveWithJoysticksCommand extends BaseCommand {
 
     @Override
     public void execute() {
+        double leftY = operatorInterface.gamepad.getLeftStickY();
+        double leftX = operatorInterface.gamepad.getLeftStickX();
+
+        drive.tankDrive(leftY - leftX, leftY + leftX);
     }
 
 }

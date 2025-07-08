@@ -19,6 +19,7 @@ public class DriveSubsystem extends BaseDriveSubsystem implements DataFrameRefre
 
     public final XCANMotorController frontLeft;
     public final XCANMotorController frontRight;
+    private double precisionMode = 1;
 
     DoubleProperty dp;
 
@@ -34,16 +35,14 @@ public class DriveSubsystem extends BaseDriveSubsystem implements DataFrameRefre
 
         pf.setPrefix(this);
         dp = pf.createPersistentProperty("DriveSubsystem", 1.5);
-
     }
 
     public void tankDrive(double leftPower, double rightPower) {
         // You'll need to take these power values and assign them to all of the motors.
         // As an example, here is some code that has the frontLeft motor to spin
         // according to the value of leftPower:
-        frontLeft.setPower(leftPower);
-        frontRight.setPower(rightPower);
-
+        frontLeft.setPower(leftPower * this.precisionMode);
+        frontRight.setPower(rightPower * this.precisionMode);
     }
 
 
@@ -89,6 +88,14 @@ public class DriveSubsystem extends BaseDriveSubsystem implements DataFrameRefre
     public double getTransverseDistance() {
         // TODO: Auto-generated method stub
         return 0;
+    }
+
+    public double getPrecisionMode() {
+        return this.precisionMode;
+    }
+
+    public void setPrecisionMode(double precision) {
+        this.precisionMode = precision;
     }
 
     public void periodic() {

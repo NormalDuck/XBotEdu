@@ -8,6 +8,7 @@ import competition.subsystems.drive.DriveSubsystem;
 public class TogglePrecisionDriveCommand extends BaseCommand {
 
     DriveSubsystem drive;
+    private boolean toggled = false;
 
     @Inject
     public TogglePrecisionDriveCommand(DriveSubsystem driveSubsystem) {
@@ -30,6 +31,13 @@ public class TogglePrecisionDriveCommand extends BaseCommand {
         // the current mode.
         // In all of these cases you'll need to have the mode somehow affect the
         // TankDrive method.
+        if (toggled) {
+            this.drive.setPrecisionMode(1);
+            this.toggled = false;
+        } else {
+            this.drive.setPrecisionMode(0.5);
+            this.toggled = true;
+        }
     }
 
     @Override
@@ -46,5 +54,4 @@ public class TogglePrecisionDriveCommand extends BaseCommand {
         // say that the command is finished right away.
         return true;
     }
-
 }
