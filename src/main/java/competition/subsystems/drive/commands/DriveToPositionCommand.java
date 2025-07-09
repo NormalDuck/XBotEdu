@@ -6,21 +6,24 @@ import xbot.common.command.BaseCommand;
 import competition.subsystems.drive.DriveSubsystem;
 import competition.subsystems.pose.PoseSubsystem;
 import xbot.common.math.XYPair;
+import xbot.common.properties.DoubleProperty;
+import xbot.common.properties.PropertyFactory;
 
 public class DriveToPositionCommand extends BaseCommand {
 
     DriveSubsystem drive;
     PoseSubsystem pose;
     private double targetPosition;
-    private boolean driveToTargetFinished;
     private double previousPosition;
-    private double currentPosition;
     private double currentVelocity;
+    public DoubleProperty pProperty;
 
     @Inject
-    public DriveToPositionCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose) {
+        public DriveToPositionCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose, PropertyFactory propertyFactory) {
+        propertyFactory.setPrefix(this);
         this.drive = driveSubsystem;
         this.pose = pose;
+        this.pProperty = propertyFactory.createPersistentProperty("p", 1);
     }
 
     public void setTargetPosition(double position) {
