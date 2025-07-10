@@ -50,8 +50,6 @@ public class DriveToPositionCommand extends BaseCommand {
 
         this.step();
 
-        System.out.println(this.currentVelocity);
-
         double error = targetPosition - pose.getPosition();
 
         double power = (error * 1/2) - currentVelocity * 13;
@@ -73,7 +71,7 @@ public class DriveToPositionCommand extends BaseCommand {
     }
 
     private void step() {
-        currentVelocity = this.pose.getPosition() - this.previousPosition;
+        currentVelocity = pose.getPosition() - this.previousPosition;
         this.previousPosition = pose.getPosition();
     }
 }
