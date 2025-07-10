@@ -55,9 +55,6 @@ public class TurnLeft90DegreesCommand extends BaseCommand {
     }
 
     private double getError() {
-//        System.out.println("Target rotation: " + targetRotation);
-//        System.out.println("Current rotation: " + getCurrentRotation());
-//        System.out.println((initialRotation + targetRotation) - getCurrentRotation());
         double rawErrorRotation = (initialRotation + targetRotation) - getCurrentRotation();
         if (rawErrorRotation <= 360) {
             return rawErrorRotation;
