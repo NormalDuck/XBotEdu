@@ -1,44 +1,72 @@
 package competition.subsystems.drive.commands;
 
 import javax.inject.Inject;
+import javax.sound.midi.SysexMessage;
 
+import competition.subsystems.pose.PoseSubsystem;
 import xbot.common.command.BaseCommand;
 import competition.subsystems.drive.DriveSubsystem;
 
 public class DriveToOrientationCommand extends BaseCommand {
 
     DriveSubsystem drive;
+    PoseSubsystem pose;
+    double initialRotation;
+    private double previousRotation;
+    private double currentVelocity;
+    public double targetRotation;
 
     @Inject
-    public DriveToOrientationCommand(DriveSubsystem driveSubsystem) {
+    public DriveToOrientationCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose) {
         this.drive = driveSubsystem;
+        this.pose = pose;
     }
 
     public void setTargetHeading(double heading) {
-        // This method will be called by the test, and will give you a goal heading.
-        // You'll need to remember this target position and use it in your calculations.
+        targetRotation = heading;
     }
 
     @Override
     public void initialize() {
-        // If you have some one-time setup, do it here.
+        initialRotation = getCurrentRotation();
+        System.out.println(initialRotation);
     }
 
     @Override
     public void execute() {
-        // Here you'll need to figure out a technique that:
-        // - Gets the robot to turn to the target orientation
-        // - Gets the robot stop (or at least be moving really really slowly) at the
-        // target position
+        step();
 
-        // How you do this is up to you. If you get stuck, ask a mentor or student for
-        // some hints!
+        double power = (getError() * 1/2) - currentVelocity * 3;
+
+        this.drive.tankDrive(0, power);
+    }
+
+    private double getCurrentRotation() {
+        return pose.getCurrentHeading().getDegrees();
     }
 
     @Override
     public boolean isFinished() {
-        // Modify this to return true once you have met your goal,
-        // and you're moving fairly slowly (ideally stopped)
-        return false;
+        return Math.abs(getError()) < 1 && Math.abs(currentVelocity) < 0.01;
+    }
+
+    @Override
+    public void end(boolean isInterrupted) {
+        drive.tankDrive(0, 0);
+    }
+
+    private void step() {
+        currentVelocity = getCurrentRotation() - previousRotation;
+        previousRotation = getCurrentRotation();
+    }
+
+    private double getError() {
+        double rawErrorRotation = (initialRotation + targetRotation) - getCurrentRotation() + Math.abs(initialRotation);
+
+        if (rawErrorRotation <= 360) {
+            return rawErrorRotation;
+        } else {
+            return rawErrorRotation - 360;
+        }
     }
 }

@@ -15,7 +15,6 @@ public class TurnLeft90DegreesCommand extends BaseCommand {
     private double currentVelocity;
     public double targetRotation = 90;
 
-
     @Inject
     public TurnLeft90DegreesCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose) {
         this.drive = driveSubsystem;
