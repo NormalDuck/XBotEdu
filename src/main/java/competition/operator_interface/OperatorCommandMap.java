@@ -3,6 +3,9 @@ package competition.operator_interface;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import competition.subsystems.drive.commands.DriveInASquareCommand;
+import competition.subsystems.drive.commands.RelativeDriveCommand;
+import competition.subsystems.drive.commands.TurnLeft90DegreesCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
@@ -24,11 +27,16 @@ public class OperatorCommandMap {
     @Inject
     public void setupMyCommands(
             OperatorInterface operatorInterface,
-            SetRobotHeadingCommand resetHeading
+            SetRobotHeadingCommand resetHeading,
+            DriveInASquareCommand driveInASquare,
+            TurnLeft90DegreesCommand turnLeft90
             )
     {
         resetHeading.setHeadingToApply(90);
         operatorInterface.gamepad.getifAvailable(XboxButton.Start).whileTrue(resetHeading);
+        operatorInterface.gamepad.getifAvailable(XboxButton.A).onTrue(driveInASquare);
+        operatorInterface.gamepad.getifAvailable(XboxButton.X).onTrue(turnLeft90);
+
 
         // Add new button mappings here!
     }

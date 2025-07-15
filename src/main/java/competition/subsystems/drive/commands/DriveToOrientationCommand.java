@@ -1,7 +1,6 @@
 package competition.subsystems.drive.commands;
 
 import javax.inject.Inject;
-import javax.sound.midi.SysexMessage;
 
 import competition.subsystems.pose.PoseSubsystem;
 import xbot.common.command.BaseCommand;
@@ -23,7 +22,12 @@ public class DriveToOrientationCommand extends BaseCommand {
     }
 
     public void setTargetHeading(double heading) {
-        targetRotation = heading;
+        targetRotation = heading % 360;
+        if (targetRotation < -180) {
+            targetRotation += 360;
+        } else if (targetRotation > 180) {
+            targetRotation -= 360;
+        }
     }
 
     @Override
@@ -61,7 +65,7 @@ public class DriveToOrientationCommand extends BaseCommand {
     }
 
     private double getError() {
-        double rawErrorRotation = (initialRotation + targetRotation) - getCurrentRotation() + Math.abs(initialRotation);
+        double rawErrorRotation = targetRotation - getCurrentRotation();
 
         if (rawErrorRotation <= 360) {
             return rawErrorRotation;
