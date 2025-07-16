@@ -5,9 +5,6 @@ import javax.inject.Inject;
 import xbot.common.command.BaseCommand;
 import competition.subsystems.drive.DriveSubsystem;
 import competition.subsystems.pose.PoseSubsystem;
-import xbot.common.math.XYPair;
-import xbot.common.properties.DoubleProperty;
-import xbot.common.properties.PropertyFactory;
 
 public class DriveToPositionCommand extends BaseCommand {
 
@@ -16,14 +13,11 @@ public class DriveToPositionCommand extends BaseCommand {
     private double targetPosition;
     private double previousPosition;
     private double currentVelocity;
-    public DoubleProperty pProperty;
 
     @Inject
-        public DriveToPositionCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose, PropertyFactory propertyFactory) {
-        propertyFactory.setPrefix(this);
+    public DriveToPositionCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose) {
         this.drive = driveSubsystem;
         this.pose = pose;
-        this.pProperty = propertyFactory.createPersistentProperty("p", 1);
     }
 
     public void setTargetPosition(double position) {
@@ -62,7 +56,7 @@ public class DriveToPositionCommand extends BaseCommand {
         // and you're moving fairly slowly (ideally stopped)
         double error = targetPosition - pose.getPosition();
 
-        return Math.abs(error) < 0.01 && Math.abs(currentVelocity) < 0.01;
+        return Math.abs(error) < 0.01 && Math.abs(currentVelocity) < 0.001;
     }
 
     @Override
@@ -71,7 +65,7 @@ public class DriveToPositionCommand extends BaseCommand {
     }
 
     private void step() {
-        currentVelocity = pose.getPosition() - this.previousPosition;
+        currentVelocity = this.pose.getPosition() - this.previousPosition;
         this.previousPosition = pose.getPosition();
     }
 }

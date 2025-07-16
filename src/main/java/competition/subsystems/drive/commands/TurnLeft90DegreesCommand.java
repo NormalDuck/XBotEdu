@@ -10,10 +10,37 @@ public class TurnLeft90DegreesCommand extends BaseCommand {
 
     DriveSubsystem drive;
     PoseSubsystem pose;
-    double initialRotation;
-    private double previousRotation;
-    private double currentVelocity;
-    public double targetRotation = 90;
+
+    double currentYaw;
+    double target_rotation;
+    double lastYaw = 0;
+    double velocity;
+
+    // compareCurrentAndGoal not needed because fixed 90 degrees rotation EVERY TIME in this scenario.
+    public double compareCurrentAndGoal(double current, double goal) {
+        current %= 180;
+        goal %= 180;
+
+        double distance;
+        double magnitude1;
+        double magnitude2;
+
+        if (current > goal) {
+            magnitude1 = current - goal;
+            magnitude2 = current - (goal + 360);
+        } else {
+            magnitude1 = current - goal;
+            magnitude2 = current - (goal - 360);
+        }
+
+        if (Math.abs(magnitude1) > Math.abs(magnitude2)){
+            distance = magnitude2;
+        } else {
+            distance = magnitude1;
+        }
+
+        return -distance;
+    }
 
     @Inject
     public TurnLeft90DegreesCommand(DriveSubsystem driveSubsystem, PoseSubsystem pose) {
@@ -23,42 +50,31 @@ public class TurnLeft90DegreesCommand extends BaseCommand {
 
     @Override
     public void initialize() {
-        initialRotation = getCurrentRotation();
+        currentYaw = pose.getCurrentHeading().getDegrees();
+        target_rotation = currentYaw + 90;
+
+        if (target_rotation > 180) {
+            target_rotation -= 360;
+        } else if (target_rotation < -180) {
+            target_rotation += 360;
+        }
     }
 
     @Override
     public void execute() {
-        step();
+        // It works... but check the visualizer 4th dropdown option.
 
-        double power = (getError() * 1/2) - currentVelocity * 3;
-        this.drive.tankDrive(0, power);
+        double rotationUntilGoal = compareCurrentAndGoal(currentYaw, target_rotation);
+        double power = (rotationUntilGoal * 0.023) - (velocity * 0.43);
+
+        drive.tankDrive(-power, power);
+        lastYaw = currentYaw;
     }
 
-    private double getCurrentRotation() {
-        return pose.getCurrentHeading().getDegrees();
-    }
-
-    @Override
     public boolean isFinished() {
-        return Math.abs(getError()) < 1 && Math.abs(currentVelocity) < 0.01;
-    }
+        currentYaw = pose.getCurrentHeading().getDegrees();
+        velocity = currentYaw - lastYaw;
 
-    @Override
-    public void end(boolean isInterrupted) {
-        drive.tankDrive(0, 0);
-    }
-
-    private void step() {
-        currentVelocity = getCurrentRotation() - previousRotation;
-        previousRotation = getCurrentRotation();
-    }
-
-    private double getError() {
-        double rawErrorRotation = (initialRotation + targetRotation) - getCurrentRotation();
-        if (rawErrorRotation <= 360) {
-            return rawErrorRotation;
-        } else {
-            return rawErrorRotation - 360;
-        }
+        return (Math.abs(target_rotation - currentYaw) < 0.1 && Math.abs(velocity) < 0.1);
     }
 }
